@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "easy-mind-51834"
+  },
+  "targets": {
+    "easy-mind-51834": {
+      "hosting": {
+        "easymind-admin-51834": [
+          "easymind-admin-51834"
+        ]
+      }
+    }
+  }
+}
