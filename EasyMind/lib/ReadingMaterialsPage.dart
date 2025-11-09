@@ -173,89 +173,105 @@ class _ReadingmaterialspageState extends State<Readingmaterialspage> {
   }
 
   Widget _buildHeader(BuildContext context) {
-    return Row(
+    double buttonWidth = ResponsiveUtils.isSmallScreen(context)
+        ? ResponsiveUtils.getResponsiveIconSize(context, mobile: 150)
+        : ResponsiveUtils.getResponsiveIconSize(context, mobile: 180);
+    double buttonHeight = ResponsiveUtils.isSmallScreen(context)
+        ? ResponsiveUtils.getResponsiveIconSize(context, mobile: 50)
+        : ResponsiveUtils.getResponsiveIconSize(context, mobile: 60);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          height: ResponsiveUtils.getResponsiveIconSize(context, mobile: 50),
-          width: ResponsiveUtils.getResponsiveIconSize(context, mobile: 150),
-          child: ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF648BA2),
-              padding: EdgeInsets.symmetric(
-                vertical: ResponsiveUtils.getResponsiveSpacing(context, mobile: 15),
-                horizontal: ResponsiveUtils.getResponsiveSpacing(context, mobile: 20),
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(
-                  ResponsiveUtils.getResponsiveBorderRadius(context, mobile: 12),
+        ResponsiveSpacing(mobileSpacing: 35),
+        Row(
+          children: [
+            SizedBox(
+              height: buttonHeight,
+              width: buttonWidth,
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF648BA2),
+                  padding: EdgeInsets.symmetric(
+                    vertical: ResponsiveUtils.getResponsiveSpacing(context, mobile: 15),
+                    horizontal: ResponsiveUtils.getResponsiveSpacing(context, mobile: 20),
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                      ResponsiveUtils.getResponsiveBorderRadius(context, mobile: 12),
+                    ),
+                  ),
+                ),
+                child: ResponsiveText(
+                  'Go Back',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                  mobileFontSize: 20,
+                  tabletFontSize: 22,
+                  desktopFontSize: 24,
+                  largeDesktopFontSize: 26,
                 ),
               ),
             ),
-            child: ResponsiveText(
-              'Go Back',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-              mobileFontSize: 20,
-              tabletFontSize: 22,
-              desktopFontSize: 24,
-              largeDesktopFontSize: 26,
+            ResponsiveSpacing(
+              mobileSpacing: ResponsiveUtils.isSmallScreen(context) ? 20 : 30,
+              isVertical: false,
             ),
-          ),
-        ),
-        ResponsiveSpacing(mobileSpacing: 20, isVertical: false),
-        SizedBox(
-          height: ResponsiveUtils.getResponsiveIconSize(context, mobile: 50),
-          width: ResponsiveUtils.getResponsiveIconSize(context, mobile: 150),
-          child: ElevatedButton.icon(
-            onPressed: () async {
-              await flutterTts.speak("Progress Dashboard");
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => UnifiedAnalyticsDashboard(
-                                    nickname: widget.nickname,
-                                  ),
-                                ),
-                              );
-            },
-            icon: ResponsiveIcon(
-              Icons.analytics,
-              color: Colors.white,
-              mobileSize: 20,
-              tabletSize: 22,
-              desktopSize: 24,
-              largeDesktopSize: 26,
-            ),
-            label: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: ResponsiveText(
-                '📊 Progress',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
+            SizedBox(
+              height: buttonHeight,
+              width: buttonWidth,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  await flutterTts.speak("Progress Dashboard");
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => UnifiedAnalyticsDashboard(
+                                        nickname: widget.nickname,
+                                      ),
+                                    ),
+                                  );
+                },
+                icon: ResponsiveIcon(
+                  Icons.analytics,
                   color: Colors.white,
+                  mobileSize: 20,
+                  tabletSize: 22,
+                  desktopSize: 24,
+                  largeDesktopSize: 26,
                 ),
-                mobileFontSize: 14,
-                tabletFontSize: 16,
-                desktopFontSize: 18,
-                largeDesktopFontSize: 20,
+                label: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: ResponsiveText(
+                    '📊 Progress',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                    mobileFontSize: 14,
+                    tabletFontSize: 16,
+                    desktopFontSize: 18,
+                    largeDesktopFontSize: 20,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF3C7E71),
+                  padding: EdgeInsets.symmetric(
+                    vertical: ResponsiveUtils.getResponsiveSpacing(context, mobile: 15),
+                    horizontal: ResponsiveUtils.getResponsiveSpacing(context, mobile: 20),
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                      ResponsiveUtils.getResponsiveBorderRadius(context, mobile: 12),
+                    ),
+                  ),
+                ),
               ),
             ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF3C7E71),
-              padding: EdgeInsets.symmetric(
-                vertical: ResponsiveUtils.getResponsiveSpacing(context, mobile: 15),
-                horizontal: ResponsiveUtils.getResponsiveSpacing(context, mobile: 20),
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(
-                  ResponsiveUtils.getResponsiveBorderRadius(context, mobile: 12),
-                ),
-              ),
-            ),
-          ),
+          ],
         ),
       ],
     );
@@ -315,7 +331,7 @@ class _ReadingmaterialspageState extends State<Readingmaterialspage> {
       _buildSubjectCard(
         context,
         label: "",
-        imagePath: 'assets/prevocational.png',
+        imagePath: 'assets/prevoc.png',
         onTap: () async {
           await flutterTts.speak("Pre vocational Skills");
           await Navigator.push(
@@ -507,18 +523,17 @@ class _ReadingmaterialspageState extends State<Readingmaterialspage> {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Flexible(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(
-                  ResponsiveUtils.getResponsiveBorderRadius(context, mobile: 20),
-                ),
-                child: Image.asset(
-                  imagePath,
-                  height: ResponsiveUtils.isSmallScreen(context) 
-                    ? ResponsiveUtils.getResponsiveIconSize(context, mobile: 150)
-                    : ResponsiveUtils.getResponsiveIconSize(context, mobile: 200),
-                  fit: BoxFit.contain,
-                ),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(
+                ResponsiveUtils.getResponsiveBorderRadius(context, mobile: 20),
+              ),
+              child: Image.asset(
+                imagePath,
+                height: ResponsiveUtils.isSmallScreen(context)
+                  ? ResponsiveUtils.getResponsiveIconSize(context, mobile: 140)
+                  : ResponsiveUtils.getResponsiveIconSize(context, mobile: 180),
+                fit: BoxFit.contain,
+                width: double.infinity,
               ),
             ),
             ResponsiveSpacing(mobileSpacing: 8),

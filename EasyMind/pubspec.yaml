@@ -77,6 +77,14 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
+    - assets/WhereDoesItBelong.png
+    - assets/prevoc.png
+    - assets/LetterTracing.png
+    - assets/FormTheWord.png
+    - assets/Flashcard.png
+    - assets/ColorMatching.png
+    - assets/MatchTheSound.png
+    - assets/SayItRight!.png
     - assets/logo.png
     - assets/alpha.png
     - assets/Apple.jpg
