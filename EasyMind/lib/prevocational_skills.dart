@@ -1,10 +1,55 @@
 import 'package:flutter/material.dart';
-import 'shapes_activity_page.dart'; // Existing activity
-import 'daily_tasks_module.dart'; // ← Placeholder for the new module page
+import 'shapes_activity_page.dart';
+import 'daily_tasks_module.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
-class PreVocationalSkillsPage extends StatelessWidget {
+class PreVocationalSkillsPage extends StatefulWidget {
   final String nickname;
   const PreVocationalSkillsPage({super.key, required this.nickname});
+
+  @override
+  _PreVocationalSkillsPageState createState() =>
+      _PreVocationalSkillsPageState();
+}
+
+class _PreVocationalSkillsPageState extends State<PreVocationalSkillsPage> {
+  final FlutterTts flutterTts = FlutterTts();
+  bool _isDisposed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _setupTTS();
+  }
+
+  Future<void> _setupTTS() async {
+    try {
+      await flutterTts.setLanguage("en-US");
+      await flutterTts.setSpeechRate(0.5);
+      await flutterTts.setPitch(1.0);
+      await flutterTts.setVolume(1.0);
+    } catch (e) {
+      print("TTS setup error: $e");
+    }
+  }
+
+  Future<void> _speakIntro(String module) async {
+    if (_isDisposed) return;
+    try {
+      await flutterTts.stop();
+      await flutterTts.speak("Let's learn the $module");
+      await flutterTts.awaitSpeakCompletion(true);
+    } catch (e) {
+      print("TTS speak error: $e");
+    }
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    flutterTts.stop();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,34 +57,29 @@ class PreVocationalSkillsPage extends StatelessWidget {
       backgroundColor: const Color(0xFFEFE9D5),
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width < 400 ? 12.0 : 20.0,
-            vertical: MediaQuery.of(context).size.width < 400 ? 20.0 : 30.0,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Go Back Button
               Align(
                 alignment: Alignment.topLeft,
                 child: SizedBox(
-                  height: MediaQuery.of(context).size.width < 400 ? 50 : 60,
-                  width: MediaQuery.of(context).size.width < 400 ? 140 : 180,
+                  height: 50,
+                  width: 160,
                   child: ElevatedButton(
                     onPressed: () => Navigator.pop(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF648BA2),
-                      padding: EdgeInsets.symmetric(
-                        vertical: MediaQuery.of(context).size.width < 400 ? 12 : 15,
-                        horizontal: MediaQuery.of(context).size.width < 400 ? 16 : 20,
-                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: Text(
+                    child: const Text(
                       'Go Back',
                       style: TextStyle(
-                        fontSize: MediaQuery.of(context).size.width < 400 ? 20 : 25,
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
@@ -62,16 +102,15 @@ class PreVocationalSkillsPage extends StatelessWidget {
                   children: [
                     _buildImageCard(
                       context,
-                      'assets/measuring.png',
-                      labelText: 'Shapes Activity',
-                      destination: ShapesActivityPage(nickname: nickname),
+                      'assets/lrn_activity.png',
+                      ShapesActivityPage(nickname: widget.nickname),
+                      "shapes activity",
                     ),
                     _buildImageCard(
                       context,
-                      'assets/daily.png',
-                      labelText: 'Daily Tasks',
-                      destination:
-                          DailyTasksModulePage(nickname: nickname),
+                      'assets/lrn_daily.png',
+                      DailyTasksModulePage(nickname: widget.nickname),
+                      "daily tasks",
                     ),
                   ],
                 ),
@@ -85,147 +124,39 @@ class PreVocationalSkillsPage extends StatelessWidget {
 
   Widget _buildImageCard(
     BuildContext context,
-    String imagePath, {
-    String? labelText,
-    Widget? destination,
-  }) {
-    // Balanced, SPED-friendly color combinations
-    final Map<String, Map<String, Color>> moduleColors = {
-      'Shapes Activity': {
-        'background': Color(0xFFEDF5EF),  // Soft sage
-        'border': Color(0xFF779885),      // Muted forest
-      },
-      'Daily Tasks': {
-        'background': Color(0xFFEDF4FA),  // Gentle blue
-        'border': Color(0xFF6B8DAB),      // Muted blue-gray
-      },
-    };
-
-    // Module-specific icons
-    final Map<String, IconData> moduleIcons = {
-      'Shapes Activity': Icons.category,
-      'Daily Tasks': Icons.check_circle_outline,
-    };
-
-    final colors = moduleColors[labelText ?? ''] ?? {
-      'background': Color(0xFFEDF5EF),
-      'border': Color(0xFF779885),
-    };
-
+    String imagePath,
+    Widget destination,
+    String moduleName,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0),
       child: GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => destination ?? 
-                Scaffold(
-                  appBar: AppBar(title: const Text("Coming Soon")),
-                  body: const Center(
-                    child: Text("Content will be added here."),
-                  ),
-                ),
-            ),
-          );
+        onTap: () async {
+          if (!_isDisposed) {
+            try {
+              await _speakIntro(moduleName);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => destination),
+              );
+            } catch (e) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => destination),
+              );
+            }
+          }
         },
         child: Container(
-          height: 140,
+          height: 120,
+          width: double.infinity,
           decoration: BoxDecoration(
-            color: colors['background'],
             borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.06),
-                blurRadius: 6,
-                offset: const Offset(0, 3),
-              ),
-            ],
           ),
-          child: Row(
-            children: [
-              const SizedBox(width: 20),
-              // Icon section
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: colors['border']!.withOpacity(0.15),
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: colors['border']!.withOpacity(0.5),
-                    width: 2,
-                  ),
-                ),
-                child: Icon(
-                  moduleIcons[labelText] ?? Icons.school,
-                  size: 40,
-                  color: colors['border'],
-                ),
-              ),
-              const SizedBox(width: 20),
-              // Text section
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      labelText ?? '',
-                      style: TextStyle(
-                        fontFamily: 'Comic Sans MS',
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: colors['border'],
-                        height: 1.2,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: colors['border']!.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: colors['border']!.withOpacity(0.5),
-                          width: 2,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.star,
-                            color: colors['border'],
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            "Let's Learn!",
-                            style: TextStyle(
-                              fontFamily: 'Comic Sans MS',
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: colors['border'],
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Icon(
-                            Icons.star,
-                            color: colors['border'],
-                            size: 20,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 20),
-            ],
+          clipBehavior: Clip.antiAlias,
+          child: Image.asset(
+            imagePath,
+            fit: BoxFit.cover,
           ),
         ),
       ),

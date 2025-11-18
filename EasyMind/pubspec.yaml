@@ -226,6 +226,16 @@ flutter:
     - assets/orange_color.png
     - assets/purple.png
     - assets/pink.png
+    - assets/lrn_shape.png
+    - assets/lrn_family.png
+    - assets/lrn_read.png
+    - assets/lrn_alphabets.png
+    - assets/lrn_colors.png
+    - assets/lrn_tts.png
+    - assets/lrn_reading.png
+    - assets/lrn_sounds.png
+    - assets/lrn_activity.png
+    - assets/lrn_daily.png 
 
     # ✅ Audio assets
     - assets/sound/dog_bark.mp3
