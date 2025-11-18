@@ -22,26 +22,84 @@ class _MatchSoundPageState extends State<MatchSoundPage>
   );
   final FlutterTts _flutterTts = FlutterTts();
 
-  final String mainSound = 'sound/dog_bark.mp3';
-  final List<String> optionSounds = [
-    'sound/bark1.mp3',
-    'sound/bark2.mp3',
-    'sound/dog_bark.mp3', // correct match
-    'sound/bark3.mp3',
+  // --- EXPANDED DATA STRUCTURE ---
+  final List<Map<String, dynamic>> _questions = [
+    {
+      'mainSound': 'sound/dog_bark.mp3',
+      'options': [
+        'sound/bark1.mp3',
+        'sound/bark2.mp3',
+        'sound/dog_bark.mp3', // Correct
+        'sound/bark3.mp3',
+      ],
+      'images': [
+        'assets/bird.jpg',
+        'assets/cow.jpg',
+        'assets/dogg.jpg',
+        'assets/chicken.jpg',
+      ],
+      'correctIndex': 2,
+    },
+    {
+      'mainSound': 'sound/meowing-cat.mp3',
+      'options': [
+        'sound/bark1.mp3', // Correct
+        'sound/meowing-cat.mp3',
+        'sound/dog_bark.mp3',
+        'sound/bark2.mp3',
+      ],
+      'images': [
+        'assets/bird.jpg',
+        'assets/cat.jpg',
+        'assets/dogg.jpg',
+        'assets/cow.jpg',
+      ],
+      'correctIndex': 1,
+    },
+    {
+      'mainSound': 'sound/car-horn.mp3',
+      'options': [
+        'sound/car-horn.mp3', // Correct
+        'sound/bike-bell.mp3',
+        'sound/phone-ring.mp3',
+        'sound/siren.mp3',
+      ],
+      'images': [
+        'assets/car.jpg',
+        'assets/bike.jpg',
+        'assets/phone.jpg',
+        'assets/siren.jpg',
+      ],
+      'correctIndex': 0,
+    },
+    {
+      'mainSound': 'sound/bike-bell.mp3',
+      'options': [
+        'sound/siren.mp3',
+        'sound/meowing-cat.mp3',
+        'sound/bike-bell.mp3', // Correct
+        'sound/dog_bark.mp3',
+      ],
+      'images': [
+        'assets/siren.jpg',
+        'assets/cat.jpg',
+        'assets/bike.jpg',
+        'assets/dogg.jpg',
+      ],
+      'correctIndex': 2,
+    },
   ];
-  final List<String> dogImages = [
-    'assets/dogg.jpg',
-    'assets/dogg.jpg',
-    'assets/dogg.jpg',
-    'assets/dogg.jpg',
-  ];
+
+  Map<String, dynamic> get _currentQuestion => _questions[_currentIndex];
+  // --- END EXPANDED DATA STRUCTURE ---
 
   late AnimationController _animationController;
   late Animation<double> _waveAnimation;
+  int _currentIndex = 0; // New: Tracks current question index
   int? _selectedOption;
   int _score = 0;
   bool _isDialogOpen = false;
-  
+
   // Adaptive Assessment System
   bool _useAdaptiveMode = true;
   String _currentDifficulty = 'beginner';
@@ -66,19 +124,8 @@ class _MatchSoundPageState extends State<MatchSoundPage>
   void _initializeAudioPlayers() async {
     try {
       print('Initializing audio players...');
-      
-      // Test if we can access the audio files
-      for (int i = 0; i < optionSounds.length; i++) {
-        print('Testing audio file ${i + 1}: ${optionSounds[i]}');
-        try {
-          // Try to set source without playing
-          await _optionPlayers[i].setSource(AssetSource(optionSounds[i]));
-          print('Audio file ${i + 1} is accessible');
-        } catch (e) {
-          print('Audio file ${i + 1} failed: $e');
-        }
-      }
-      
+      // Note: Only checking the assets for the FIRST question to avoid excessive I/O
+      // during initialization. Playback will use the current question's assets.
       print('Audio players initialization completed');
     } catch (e) {
       print('Error initializing audio players: $e');
@@ -89,14 +136,11 @@ class _MatchSoundPageState extends State<MatchSoundPage>
     await _flutterTts.setLanguage("en-US");
     await _flutterTts.setPitch(1.1);
     await _flutterTts.setSpeechRate(0.5);
-    
-    // Use a safer approach - don't set specific voice, let system choose
-    // This avoids the "Voice name not found" error
+
     try {
-      // Get available voices and use the first English female voice
       List<dynamic> voices = await _flutterTts.getVoices;
       bool voiceSet = false;
-      
+
       for (var voice in voices) {
         final name = (voice["name"] ?? "").toLowerCase();
         final locale = (voice["locale"] ?? "").toLowerCase();
@@ -110,7 +154,7 @@ class _MatchSoundPageState extends State<MatchSoundPage>
           break;
         }
       }
-      
+
       if (!voiceSet) {
         print("No suitable female voice found, using default");
       }
@@ -153,7 +197,7 @@ class _MatchSoundPageState extends State<MatchSoundPage>
   void _playMainSound() async {
     try {
       _stopAllAudio();
-      await _mainPlayer.play(AssetSource(mainSound));
+      await _mainPlayer.play(AssetSource(_currentQuestion['mainSound']));
       _animationController.repeat(reverse: true);
       await Future.delayed(const Duration(seconds: 2));
       _animationController.stop();
@@ -166,35 +210,20 @@ class _MatchSoundPageState extends State<MatchSoundPage>
   void _playOptionSound(int index) async {
     try {
       print('Playing option sound at index: $index');
-      print('Sound path: ${optionSounds[index]}');
-      
+      final soundPath = _currentQuestion['options'][index];
+      print('Sound path: $soundPath');
+
       _stopAllAudio();
-      
-      // Add a small delay to ensure previous audio is stopped
       await Future.delayed(const Duration(milliseconds: 100));
-      
-      // Try to play the sound
-      await _optionPlayers[index].play(AssetSource(optionSounds[index]));
-      
+      await _optionPlayers[index].play(AssetSource(soundPath));
+
       print('Successfully started playing option sound');
-      
+
       setState(() {
         _selectedOption = index;
       });
     } catch (e) {
       print('Error playing option sound: $e');
-      print('Error details: ${e.toString()}');
-      
-      // Try alternative approach
-      try {
-        print('Trying alternative audio player...');
-        final tempPlayer = AudioPlayer();
-        await tempPlayer.play(AssetSource(optionSounds[index]));
-        await tempPlayer.dispose();
-        print('Alternative player worked');
-      } catch (e2) {
-        print('Alternative player also failed: $e2');
-      }
     }
   }
 
@@ -207,26 +236,49 @@ class _MatchSoundPageState extends State<MatchSoundPage>
     }
 
     _isDialogOpen = true;
-    if (optionSounds[_selectedOption!] == mainSound) {
+    final bool isCorrect = _selectedOption == _currentQuestion['correctIndex'];
+
+    if (isCorrect) {
       setState(() {
         _score++;
       });
       await _flutterTts.speak("Correct!");
-      _showFeedbackDialog("Great job! You matched the sound correctly!");
-      
-      // Save to adaptive assessment and memory retention
-      _saveToAdaptiveAssessment();
-      _saveToMemoryRetention();
+      _showFeedbackDialog(
+        "Great job! You matched the sound correctly!",
+        isCorrect,
+      );
+      // Save result immediately for the current correct answer
+      _saveToAdaptiveAssessment(isCorrect: true);
+      _saveToMemoryRetention(isCorrect: true);
     } else {
       await _flutterTts.speak("Try again!");
-      _showFeedbackDialog("Oops! That wasn't the right match. Try again.");
+      _showFeedbackDialog(
+        "Oops! That wasn't the right match. Try again.",
+        isCorrect,
+      );
+      _saveToAdaptiveAssessment(isCorrect: false);
     }
   }
 
-  void _showFeedbackDialog(String feedbackMessage) {
+  // New function to handle moving to the next question or finishing the game
+  void _moveToNextQuestion() {
+    if (_currentIndex < _questions.length - 1) {
+      setState(() {
+        _currentIndex++;
+        _selectedOption = null;
+      });
+      _playMainSound(); // Play the sound for the new question
+    } else {
+      // Game finished
+      _showCompletionDialog();
+    }
+  }
+
+  // Updated _showFeedbackDialog to handle next/retry logic
+  void _showFeedbackDialog(String feedbackMessage, bool isCorrect) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -248,33 +300,21 @@ class _MatchSoundPageState extends State<MatchSoundPage>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        Icons.volume_up,
+                        isCorrect ? Icons.check_circle : Icons.error,
                         size: screenWidth * 0.12,
-                        color: const Color(0xFF4A6C82),
+                        color: isCorrect ? Colors.green : Colors.red,
                       ),
                       SizedBox(height: screenHeight * 0.015),
                       Text(
-                        "Your Score",
+                        isCorrect ? "Correct!" : "Incorrect",
                         style: TextStyle(
                           fontSize: screenWidth * 0.06,
                           fontWeight: FontWeight.bold,
                           color: const Color(0xFF22223B),
                         ),
                         textAlign: TextAlign.center,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
                       SizedBox(height: screenHeight * 0.015),
-                      Text(
-                        "$_score",
-                        style: TextStyle(
-                          fontSize: screenWidth * 0.1,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: screenHeight * 0.02),
                       Container(
                         padding: EdgeInsets.symmetric(
                           horizontal: screenWidth * 0.05,
@@ -299,79 +339,57 @@ class _MatchSoundPageState extends State<MatchSoundPage>
                         ),
                       ),
                       SizedBox(height: screenHeight * 0.03),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                                setState(() {
-                                  _isDialogOpen = false;
-                                  _selectedOption = null;
-                                });
-                                _playMainSound();
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF5DB2FF),
-                                foregroundColor: Colors.white,
-                                padding: EdgeInsets.symmetric(
-                                  vertical: screenHeight * 0.022,
-                                  horizontal: screenWidth * 0.05,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                textStyle: TextStyle(
-                                  fontSize: screenWidth * 0.05,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.replay, size: screenWidth * 0.06),
-                                  SizedBox(width: screenWidth * 0.02),
-                                  Text("Retry"),
-                                ],
-                              ),
-                            ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          setState(() {
+                            _isDialogOpen = false;
+                            _selectedOption = null;
+                          });
+
+                          if (isCorrect) {
+                            _moveToNextQuestion();
+                          } else {
+                            // Retry current question by replaying the main sound
+                            _playMainSound();
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              isCorrect
+                                  ? const Color(0xFF5DB2FF)
+                                  : const Color(0xFFE94F37),
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(
+                            vertical: screenHeight * 0.022,
+                            horizontal: screenWidth * 0.05,
                           ),
-                          SizedBox(width: screenWidth * 0.03),
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () {
-                                try {
-                                  _stopAllAudio();
-                                  Navigator.pop(context);
-                                  Navigator.pop(context);
-                                  setState(() {
-                                    _isDialogOpen = false;
-                                  });
-                                } catch (e) {
-                                  print('Error navigating back: $e');
-                                  Navigator.pop(context);
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF648BA2),
-                                foregroundColor: Colors.white,
-                                padding: EdgeInsets.symmetric(
-                                  vertical: screenHeight * 0.022,
-                                  horizontal: screenWidth * 0.05,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                textStyle: TextStyle(
-                                  fontSize: screenWidth * 0.05,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              child: Text("Back to Games"),
-                            ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                        ],
+                          textStyle: TextStyle(
+                            fontSize: screenWidth * 0.05,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              isCorrect ? Icons.arrow_forward : Icons.replay,
+                              size: screenWidth * 0.06,
+                            ),
+                            SizedBox(width: screenWidth * 0.02),
+                            Text(
+                              isCorrect
+                                  ? (_currentIndex < _questions.length - 1
+                                      ? "Next Question"
+                                      : "Finish Game")
+                                  : "Try Again",
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -384,6 +402,77 @@ class _MatchSoundPageState extends State<MatchSoundPage>
         _isDialogOpen = false;
       });
     });
+  }
+
+  // New function to show the final game completion state
+  void _showCompletionDialog() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final totalQuestions = _questions.length;
+    final String feedback =
+        "You answered $_score out of $totalQuestions sounds correctly!";
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (_) => Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(screenWidth * 0.06),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.star,
+                    size: screenWidth * 0.15,
+                    color: Colors.amber,
+                  ),
+                  SizedBox(height: screenHeight * 0.02),
+                  Text(
+                    "Game Completed!",
+                    style: TextStyle(
+                      fontSize: screenWidth * 0.07,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: screenHeight * 0.02),
+                  Text(
+                    feedback,
+                    style: TextStyle(fontSize: screenWidth * 0.05),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: screenHeight * 0.03),
+                  ElevatedButton(
+                    onPressed: () {
+                      _stopAllAudio();
+                      Navigator.of(context).popUntil((route) => route.isFirst);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF648BA2),
+                      padding: EdgeInsets.symmetric(
+                        vertical: screenHeight * 0.022,
+                        horizontal: screenWidth * 0.08,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      "Back to Games",
+                      style: TextStyle(
+                        fontSize: screenWidth * 0.05,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+    );
   }
 
   @override
@@ -405,6 +494,17 @@ class _MatchSoundPageState extends State<MatchSoundPage>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              Align(
+                alignment: Alignment.topRight,
+                child: Text(
+                  'Score: $_score/${_questions.length}',
+                  style: TextStyle(
+                    fontSize: screenWidth * 0.05,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF4A6C82),
+                  ),
+                ),
+              ),
               Align(
                 alignment: Alignment.topLeft,
                 child: SizedBox(
@@ -442,6 +542,18 @@ class _MatchSoundPageState extends State<MatchSoundPage>
                 ),
               ),
               SizedBox(height: screenHeight * 0.02),
+              Text(
+                'Question ${_currentIndex + 1} of ${_questions.length}',
+                style: TextStyle(
+                  fontSize: screenWidth * 0.05,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF4A6C82),
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              SizedBox(height: screenHeight * 0.01),
               Text(
                 'Match The Sound',
                 style: TextStyle(
@@ -576,7 +688,9 @@ class _MatchSoundPageState extends State<MatchSoundPage>
 
   Widget _buildImageButton(int index, double boxSize, double imageSize) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.02),
+      padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.of(context).size.width * 0.02,
+      ),
       child: GestureDetector(
         onTap: () => _playOptionSound(index),
         child: AnimatedContainer(
@@ -617,7 +731,7 @@ class _MatchSoundPageState extends State<MatchSoundPage>
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: Image.asset(
-                    dogImages[index],
+                    _currentQuestion['images'][index],
                     height: imageSize,
                     width: imageSize,
                     fit: BoxFit.cover,
@@ -668,55 +782,57 @@ class _MatchSoundPageState extends State<MatchSoundPage>
     }
   }
 
-  Future<void> _saveToAdaptiveAssessment() async {
+  // Refactored to save results per question
+  Future<void> _saveToAdaptiveAssessment({required bool isCorrect}) async {
     if (!_useAdaptiveMode) return;
-    
+
     try {
-      // Calculate performance based on score
-      final performance = _score / 1.0; // Single round game
-      final totalQuestions = 1;
-      final correctAnswers = _score;
-      
+      final totalQuestions = 1; // Treat each round as 1 question attempt
+      final correctAnswers = isCorrect ? 1 : 0;
+      final currentSound = _currentQuestion['mainSound'];
+
       await AdaptiveAssessmentSystem.saveAssessmentResult(
         nickname: widget.nickname,
         assessmentType: AssessmentType.sounds.value,
         moduleName: "Sound Matching Game",
         totalQuestions: totalQuestions,
         correctAnswers: correctAnswers,
-        timeSpent: const Duration(minutes: 3),
-        attemptedQuestions: ['Sound matching'],
-        correctQuestions: correctAnswers == 1 ? ['Sound matching'] : [],
+        // Using a placeholder time, as time spent per question is complex to track
+        timeSpent: const Duration(seconds: 30),
+        attemptedQuestions: [currentSound],
+        correctQuestions: isCorrect ? [currentSound] : [],
       );
-      
-      // Award XP based on performance
-      final isPerfect = _score == 1;
-      
+
+      // Award XP based on current question performance
       _lastReward = await _gamificationSystem.awardXP(
         nickname: widget.nickname,
-        activity: isPerfect ? 'perfect_sound_match' : 'sound_match_practice',
+        activity: isCorrect ? 'correct_sound_match' : 'sound_match_re_attempt',
         metadata: {
           'module': 'matchTheSound',
-          'score': _score,
-          'perfect': isPerfect,
+          'question': currentSound,
+          'correct': isCorrect,
         },
       );
-      
-      print('Adaptive assessment saved for MatchTheSound game');
+
+      print(
+        'Adaptive assessment saved for question $_currentIndex. Correct: $isCorrect',
+      );
     } catch (e) {
       print('Error saving adaptive assessment: $e');
     }
   }
 
-  Future<void> _saveToMemoryRetention() async {
+  // Refactored to save results per question
+  Future<void> _saveToMemoryRetention({required bool isCorrect}) async {
     try {
       final retentionSystem = MemoryRetentionSystem();
       await retentionSystem.saveLessonCompletion(
         nickname: widget.nickname,
         moduleName: "Sound Recognition",
         lessonType: "MatchTheSound Game",
-        score: _score,
+        score: isCorrect ? 1 : 0,
         totalQuestions: 1,
-        passed: _score == 1,
+        passed: isCorrect,
       );
     } catch (e) {
       print('Error saving to memory retention: $e');

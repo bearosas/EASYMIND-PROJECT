@@ -10,7 +10,7 @@ import 'responsive_utils.dart';
 
 class GamesLandingPage extends StatelessWidget {
   final String nickname;
-  
+
   const GamesLandingPage({super.key, required this.nickname});
 
   @override
@@ -25,8 +25,6 @@ class GamesLandingPage extends StatelessWidget {
       ),
     );
   }
-
-
 
   Widget _buildMobileLayout(BuildContext context) {
     return Stack(
@@ -49,9 +47,7 @@ class GamesLandingPage extends StatelessWidget {
               ResponsiveSpacing(mobileSpacing: 100),
               _buildTitle(context),
               ResponsiveSpacing(mobileSpacing: 20),
-              Expanded(
-                child: _buildGamesGrid(context, crossAxisCount: 1),
-              ),
+              Expanded(child: _buildGamesGrid(context, crossAxisCount: 1)),
             ],
           ),
         ),
@@ -80,9 +76,7 @@ class GamesLandingPage extends StatelessWidget {
               ResponsiveSpacing(mobileSpacing: 115),
               _buildTitle(context),
               ResponsiveSpacing(mobileSpacing: 20),
-              Expanded(
-                child: _buildGamesGrid(context, crossAxisCount: 2),
-              ),
+              Expanded(child: _buildGamesGrid(context, crossAxisCount: 2)),
             ],
           ),
         ),
@@ -111,9 +105,7 @@ class GamesLandingPage extends StatelessWidget {
               ResponsiveSpacing(mobileSpacing: 130),
               _buildTitle(context),
               ResponsiveSpacing(mobileSpacing: 20),
-              Expanded(
-                child: _buildGamesGrid(context, crossAxisCount: 3),
-              ),
+              Expanded(child: _buildGamesGrid(context, crossAxisCount: 3)),
             ],
           ),
         ),
@@ -142,9 +134,7 @@ class GamesLandingPage extends StatelessWidget {
               ResponsiveSpacing(mobileSpacing: 145),
               _buildTitle(context),
               ResponsiveSpacing(mobileSpacing: 20),
-              Expanded(
-                child: _buildGamesGrid(context, crossAxisCount: 4),
-              ),
+              Expanded(child: _buildGamesGrid(context, crossAxisCount: 4)),
             ],
           ),
         ),
@@ -165,8 +155,14 @@ class GamesLandingPage extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF648BA2),
             padding: EdgeInsets.symmetric(
-              vertical: ResponsiveUtils.getResponsiveSpacing(context, mobile: 15),
-              horizontal: ResponsiveUtils.getResponsiveSpacing(context, mobile: 20),
+              vertical: ResponsiveUtils.getResponsiveSpacing(
+                context,
+                mobile: 15,
+              ),
+              horizontal: ResponsiveUtils.getResponsiveSpacing(
+                context,
+                mobile: 20,
+              ),
             ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(
@@ -176,10 +172,7 @@ class GamesLandingPage extends StatelessWidget {
           ),
           child: ResponsiveText(
             'Go Back',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
             mobileFontSize: 20,
             tabletFontSize: 22,
             desktopFontSize: 24,
@@ -215,21 +208,28 @@ class GamesLandingPage extends StatelessWidget {
         return GridView(
           padding: ResponsiveUtils.getResponsivePadding(context),
           shrinkWrap: ResponsiveUtils.isSmallScreen(context) ? false : true,
-          physics: ResponsiveUtils.isSmallScreen(context)
-              ? const AlwaysScrollableScrollPhysics()
-              : const NeverScrollableScrollPhysics(),
+          physics:
+              ResponsiveUtils.isSmallScreen(context)
+                  ? const AlwaysScrollableScrollPhysics()
+                  : const NeverScrollableScrollPhysics(),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
-            crossAxisSpacing: ResponsiveUtils.getResponsiveSpacing(context, mobile: 15),
-            mainAxisSpacing: ResponsiveUtils.getResponsiveSpacing(context, mobile: 15),
-            childAspectRatio: ResponsiveUtils.isSmallScreen(context) ? 1.0 : 0.85,
+            crossAxisSpacing: ResponsiveUtils.getResponsiveSpacing(
+              context,
+              mobile: 15,
+            ),
+            mainAxisSpacing: ResponsiveUtils.getResponsiveSpacing(
+              context,
+              mobile: 15,
+            ),
+            childAspectRatio:
+                ResponsiveUtils.isSmallScreen(context) ? 1.0 : 0.85,
           ),
           children: _buildGameCards(context),
         );
       },
     );
   }
-
 
   List<Widget> _buildGameCards(BuildContext context) {
     return [
@@ -249,10 +249,21 @@ class GamesLandingPage extends StatelessWidget {
           ],
         ),
         child: InkWell(
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => SayItRight(nickname: nickname)),
-          ),
+          onTap:
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (context) => SayItRight(
+                        nickname: nickname,
+                        targetWord:
+                            'exampleWord', // Replace with the actual target word
+                        emoji: '😊', // Replace with the desired emoji
+                        videoPath:
+                            'assets/videos/example.mp4', // Replace with the actual video path
+                      ),
+                ),
+              ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(
               ResponsiveUtils.getResponsiveBorderRadius(context, mobile: 30),
@@ -282,10 +293,13 @@ class GamesLandingPage extends StatelessWidget {
           ],
         ),
         child: InkWell(
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => MatchSoundPage(nickname: nickname)),
-          ),
+          onTap:
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MatchSoundPage(nickname: nickname),
+                ),
+              ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(
               ResponsiveUtils.getResponsiveBorderRadius(context, mobile: 30),
@@ -315,10 +329,13 @@ class GamesLandingPage extends StatelessWidget {
           ],
         ),
         child: InkWell(
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => AppleWordGame(nickname: nickname)),
-          ),
+          onTap:
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AppleWordGame(nickname: nickname),
+                ),
+              ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(
               ResponsiveUtils.getResponsiveBorderRadius(context, mobile: 30),
@@ -348,10 +365,14 @@ class GamesLandingPage extends StatelessWidget {
           ],
         ),
         child: InkWell(
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => WhereDoesItBelongGame(nickname: nickname)),
-          ),
+          onTap:
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (context) => WhereDoesItBelongGame(nickname: nickname),
+                ),
+              ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(
               ResponsiveUtils.getResponsiveBorderRadius(context, mobile: 30),
@@ -381,10 +402,13 @@ class GamesLandingPage extends StatelessWidget {
           ],
         ),
         child: InkWell(
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => LetterTracingGame(nickname: nickname)),
-          ),
+          onTap:
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => LetterTracingGame(nickname: nickname),
+                ),
+              ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(
               ResponsiveUtils.getResponsiveBorderRadius(context, mobile: 30),
@@ -414,10 +438,13 @@ class GamesLandingPage extends StatelessWidget {
           ],
         ),
         child: InkWell(
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => FlashcardGame(nickname: nickname)),
-          ),
+          onTap:
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FlashcardGame(nickname: nickname),
+                ),
+              ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(
               ResponsiveUtils.getResponsiveBorderRadius(context, mobile: 30),
@@ -447,10 +474,13 @@ class GamesLandingPage extends StatelessWidget {
           ],
         ),
         child: InkWell(
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => ColorMatchingGame(nickname: nickname)),
-          ),
+          onTap:
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ColorMatchingGame(nickname: nickname),
+                ),
+              ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(
               ResponsiveUtils.getResponsiveBorderRadius(context, mobile: 30),
@@ -475,7 +505,8 @@ class SafeImage extends StatelessWidget {
   final double height;
   final double radius;
 
-  const SafeImage({super.key, 
+  const SafeImage({
+    super.key,
     required this.imagePath,
     required this.width,
     required this.height,

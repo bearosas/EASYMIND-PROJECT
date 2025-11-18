@@ -53,7 +53,7 @@ class _WhereGameScreenState extends State<WhereGameScreen> {
     {'image': 'assets/lamp.png', 'category': 'Bedroom'},
   ];
 
-  // Current items available for dragging
+  // (Kept for backward compatibility; not used to render the single item)
   List<Map<String, String>> availableItems = [];
 
   // Items correctly dropped into their categories
@@ -73,135 +73,135 @@ class _WhereGameScreenState extends State<WhereGameScreen> {
   int _score = 0;
   final int _totalItems = 10; // Total number of draggable items
 
+  // NEW: index of the currently displayed single item
+  int _currentIndex = 0;
+
   @override
   void initState() {
     super.initState();
     _confettiController = ConfettiController(
       duration: const Duration(seconds: 3),
     );
-    // Initialize availableItems to allItems
+    // Shuffle allItems so the images appear in random order
+    allItems.shuffle();
+    // Initialize availableItems to allItems (kept for compatibility)
     availableItems = List.from(allItems);
     _initializeAdaptiveMode();
   }
 
+  /// Handle a correct accept — record accepted item and update score.
   void handleAccept(String category, String imagePath) {
     setState(() {
+      // Add to accepted items
       acceptedItems[category]?.add(imagePath);
-      // Remove item from availableItems
-      availableItems.removeWhere(
-        (item) => item['image'] == imagePath && item['category'] == category,
-      );
+
+      // Update score based on accepted items count
       _score = acceptedItems.values.fold<int>(
         0,
         (sum, list) => sum + list.length,
       );
     });
+  }
 
-    if (availableItems.isEmpty) {
-      _confettiController.play();
+  /// Show completion dialog (extracted to avoid duplication).
+  void _showCompletionDialog() {
+    _confettiController.play();
 
-      // Save to adaptive assessment and memory retention when game is complete
-      _saveToAdaptiveAssessment();
-      _saveToMemoryRetention();
+    // Save to adaptive assessment and memory retention when game is complete
+    _saveToAdaptiveAssessment();
+    _saveToMemoryRetention();
 
-      // Show completion dialog after a small delay
-      Future.delayed(const Duration(milliseconds: 300), () {
-        final screenWidth = MediaQuery.of(context).size.width;
-        final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder:
-              (_) => Dialog(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxHeight: screenHeight * 0.8,
-                    maxWidth: screenWidth * 0.9,
-                  ),
-                  child: Stack(
-                    alignment: Alignment.topCenter,
-                    children: [
-                      ConfettiWidget(
-                        confettiController: _confettiController,
-                        blastDirectionality: BlastDirectionality.explosive,
-                        shouldLoop: false,
-                        colors: const [
-                          Colors.red,
-                          Colors.blue,
-                          Colors.green,
-                          Colors.yellow,
-                          Colors.purple,
-                        ],
-                      ),
-                      Padding(
-                        padding: EdgeInsets.all(screenWidth * 0.06),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.star,
-                              size: screenWidth * 0.2,
-                              color: Colors.amber,
-                            ),
-                            SizedBox(height: screenHeight * 0.02),
-                            Text(
-                              "You have finished the game!",
-                              style: TextStyle(
-                                fontSize: screenWidth * 0.07,
-                                fontWeight: FontWeight.bold,
-                                color: const Color(0xFF2C3E50),
-                              ),
-                              textAlign: TextAlign.center,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            SizedBox(height: screenHeight * 0.03),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF5DB2FF),
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: screenWidth * 0.1,
-                                  vertical: screenHeight * 0.022,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                                elevation: 3,
-                              ),
-                              onPressed: () {
-                                try {
-                                  Navigator.of(
-                                    context,
-                                    rootNavigator: true,
-                                  ).pop();
-                                  Navigator.pop(context);
-                                } catch (e) {
-                                  print('Error navigating back: $e');
-                                  Navigator.pop(context);
-                                }
-                              },
-                              child: Text(
-                                "Back to Games",
-                                style: TextStyle(
-                                  fontSize: screenWidth * 0.055,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (_) => Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: screenHeight * 0.8,
+                maxWidth: screenWidth * 0.9,
+              ),
+              child: Stack(
+                alignment: Alignment.topCenter,
+                children: [
+                  ConfettiWidget(
+                    confettiController: _confettiController,
+                    blastDirectionality: BlastDirectionality.explosive,
+                    shouldLoop: false,
+                    colors: const [
+                      Colors.red,
+                      Colors.blue,
+                      Colors.green,
+                      Colors.yellow,
+                      Colors.purple,
                     ],
                   ),
-                ),
+                  Padding(
+                    padding: EdgeInsets.all(screenWidth * 0.06),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.star,
+                          size: screenWidth * 0.2,
+                          color: Colors.amber,
+                        ),
+                        SizedBox(height: screenHeight * 0.02),
+                        Text(
+                          "You have finished the game!",
+                          style: TextStyle(
+                            fontSize: screenWidth * 0.07,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF2C3E50),
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        SizedBox(height: screenHeight * 0.03),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF5DB2FF),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: screenWidth * 0.1,
+                              vertical: screenHeight * 0.022,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            elevation: 3,
+                          ),
+                          onPressed: () {
+                            try {
+                              Navigator.of(context, rootNavigator: true).pop();
+                              Navigator.pop(context);
+                            } catch (e) {
+                              print('Error navigating back: $e');
+                              Navigator.pop(context);
+                            }
+                          },
+                          child: Text(
+                            "Back to Games",
+                            style: TextStyle(
+                              fontSize: screenWidth * 0.055,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-        );
-      });
-    }
+            ),
+          ),
+    );
   }
 
   @override
@@ -212,25 +212,24 @@ class _WhereGameScreenState extends State<WhereGameScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Using LayoutBuilder for size-dependent layout changes (responsiveness)
     return LayoutBuilder(
       builder: (context, constraints) {
         final screenWidth = constraints.maxWidth;
         final screenHeight = constraints.maxHeight;
-
-        // Determine if we have a wide screen (e.g., tablet landscape or desktop)
         final isWideScreen = screenWidth > 600;
 
-        // Dynamic sizes based on screen width
         final double paddingH = screenWidth * (isWideScreen ? 0.08 : 0.04);
         final double spacingV = screenHeight * 0.02;
-        final double itemSize = screenWidth * (isWideScreen ? 0.10 : 0.20);
+        final double itemSize = screenWidth * (isWideScreen ? 0.35 : 0.55);
         final double acceptedItemSize =
-            screenWidth * (isWideScreen ? 0.07 : 0.15);
+            screenWidth * (isWideScreen ? 0.09 : 0.18);
         final double dragAreaHeight =
-            screenHeight * (isWideScreen ? 0.35 : 0.25);
+            screenHeight * (isWideScreen ? 0.48 : 0.36);
         final double targetAreaHeight =
-            screenHeight * (isWideScreen ? 0.40 : 0.45);
+            screenHeight * (isWideScreen ? 0.42 : 0.48);
+
+        Map<String, String>? currentItem =
+            (_currentIndex < allItems.length) ? allItems[_currentIndex] : null;
 
         return Scaffold(
           backgroundColor: const Color(0xFFEFE9D5),
@@ -243,7 +242,6 @@ class _WhereGameScreenState extends State<WhereGameScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // 1. Header (Go Back Button & Score)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -286,7 +284,7 @@ class _WhereGameScreenState extends State<WhereGameScreen> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
-                          'Score: $_score / $_totalItems',
+                          'Score: $_score / ${allItems.length}',
                           style: TextStyle(
                             fontSize: screenWidth * 0.045,
                             fontWeight: FontWeight.bold,
@@ -296,10 +294,7 @@ class _WhereGameScreenState extends State<WhereGameScreen> {
                       ),
                     ],
                   ),
-
                   SizedBox(height: spacingV),
-
-                  // 2. Game Title
                   Text(
                     "Where Does It Belong?",
                     style: TextStyle(
@@ -309,33 +304,28 @@ class _WhereGameScreenState extends State<WhereGameScreen> {
                     ),
                     textAlign: TextAlign.center,
                   ),
-
                   SizedBox(height: screenHeight * 0.03),
-
-                  // 3. Draggable Items Area (Fixed Height/Flexible Wrap)
                   Container(
-                    height: dragAreaHeight, // Responsive height
+                    height: dragAreaHeight,
                     alignment: Alignment.center,
-                    child: Wrap(
-                      spacing: screenWidth * (isWideScreen ? 0.05 : 0.03),
-                      runSpacing: screenWidth * (isWideScreen ? 0.05 : 0.03),
-                      alignment: WrapAlignment.center,
-                      children:
-                          availableItems.map((item) {
-                            return Draggable<Map<String, String>>(
-                              data: item,
+                    child:
+                        currentItem != null
+                            ? Draggable<Map<String, String>>(
+                              data: currentItem,
                               feedback: Opacity(
-                                opacity: 0.7, // Semi-transparent when dragging
+                                opacity: 0.95,
                                 child: Image.asset(
-                                  item['image']!,
+                                  currentItem['image']!,
                                   width: itemSize,
+                                  height: itemSize,
+                                  fit: BoxFit.contain,
                                   errorBuilder: (context, error, stackTrace) {
                                     return SizedBox(
                                       width: itemSize,
                                       height: itemSize,
                                       child: const Icon(
-                                        Icons.image,
-                                        size: 40,
+                                        Icons.image_not_supported,
+                                        size: 48,
                                         color: Colors.grey,
                                       ),
                                     );
@@ -345,33 +335,54 @@ class _WhereGameScreenState extends State<WhereGameScreen> {
                               childWhenDragging: SizedBox(
                                 width: itemSize,
                                 height: itemSize,
+                                child: const DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                  ),
+                                ),
                               ),
                               child: Image.asset(
-                                item['image']!,
+                                currentItem['image']!,
                                 width: itemSize,
+                                height: itemSize,
+                                fit: BoxFit.contain,
                                 errorBuilder: (context, error, stackTrace) {
                                   return Container(
                                     width: itemSize,
                                     height: itemSize,
                                     color: Colors.grey[300],
                                     child: const Icon(
-                                      Icons.image,
-                                      size: 40,
+                                      Icons.image_not_supported,
+                                      size: 48,
                                       color: Colors.grey,
                                     ),
                                   );
                                 },
                               ),
-                            );
-                          }).toList(),
-                    ),
+                            )
+                            : Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.check_circle_outline,
+                                  size: screenWidth * 0.15,
+                                  color: Colors.green,
+                                ),
+                                SizedBox(height: screenHeight * 0.01),
+                                Text(
+                                  'All items completed',
+                                  style: TextStyle(
+                                    fontSize: screenWidth * 0.045,
+                                    color: const Color(0xFF4A4E69),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
                   ),
-
                   SizedBox(height: screenHeight * 0.03),
-
-                  // 4. Drag Targets Area (Expanded Row)
                   Container(
-                    height: targetAreaHeight, // Responsive height
+                    height: targetAreaHeight,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -400,9 +411,7 @@ class _WhereGameScreenState extends State<WhereGameScreen> {
                                                 : Colors.red.shade400)
                                             : const Color(
                                               0xFF4A4E69,
-                                            ).withOpacity(
-                                              0.5,
-                                            ); // Default border color
+                                            ).withOpacity(0.5);
 
                                     return Container(
                                       height: double.infinity,
@@ -410,38 +419,32 @@ class _WhereGameScreenState extends State<WhereGameScreen> {
                                         color: Colors.white,
                                         border: Border.all(
                                           color: borderColor,
-                                          width: 3.0,
+                                          width: 4.0,
                                         ),
-                                        borderRadius: BorderRadius.circular(20),
-                                        boxShadow:
-                                            isAccepting
-                                                ? [
-                                                  BoxShadow(
-                                                    color: borderColor
-                                                        .withOpacity(0.5),
-                                                    blurRadius: 5,
-                                                    spreadRadius: 2,
-                                                  ),
-                                                ]
-                                                : null,
+                                        borderRadius: BorderRadius.circular(25),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(
+                                              0.1,
+                                            ),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 4),
+                                          ),
+                                        ],
                                       ),
                                       child: Column(
                                         mainAxisAlignment:
                                             MainAxisAlignment.end,
                                         children: [
-                                          // Area for accepted items
                                           Expanded(
                                             child: SingleChildScrollView(
                                               padding: EdgeInsets.all(
-                                                screenWidth *
-                                                    (isWideScreen
-                                                        ? 0.01
-                                                        : 0.01),
+                                                screenWidth * 0.02,
                                               ),
                                               child: Wrap(
                                                 alignment: WrapAlignment.center,
-                                                spacing: screenWidth * 0.01,
-                                                runSpacing: screenWidth * 0.01,
+                                                spacing: screenWidth * 0.015,
+                                                runSpacing: screenWidth * 0.015,
                                                 children:
                                                     acceptedItems[category]!
                                                         .map(
@@ -449,53 +452,30 @@ class _WhereGameScreenState extends State<WhereGameScreen> {
                                                             img,
                                                             width:
                                                                 acceptedItemSize,
-                                                            errorBuilder: (
-                                                              context,
-                                                              error,
-                                                              stackTrace,
-                                                            ) {
-                                                              return Container(
-                                                                width:
-                                                                    acceptedItemSize,
-                                                                height:
-                                                                    acceptedItemSize,
-                                                                color:
-                                                                    Colors
-                                                                        .grey[300],
-                                                                child: const Icon(
-                                                                  Icons.image,
-                                                                  size: 25,
-                                                                  color:
-                                                                      Colors
-                                                                          .grey,
-                                                                ),
-                                                              );
-                                                            },
+                                                            height:
+                                                                acceptedItemSize,
                                                           ),
                                                         )
                                                         .toList(),
                                               ),
                                             ),
                                           ),
-                                          // Category Label
                                           Container(
                                             width: double.infinity,
                                             padding: EdgeInsets.symmetric(
-                                              vertical:
-                                                  screenHeight *
-                                                  0.015, // Slightly increased padding
+                                              vertical: screenHeight * 0.015,
                                             ),
                                             decoration: BoxDecoration(
                                               color: const Color(
                                                 0xFF5DB2FF,
-                                              ).withOpacity(0.8),
+                                              ).withOpacity(0.85),
                                               borderRadius:
                                                   const BorderRadius.only(
                                                     bottomLeft: Radius.circular(
-                                                      18,
+                                                      25,
                                                     ),
                                                     bottomRight:
-                                                        Radius.circular(18),
+                                                        Radius.circular(25),
                                                   ),
                                             ),
                                             child: Text(
@@ -506,8 +486,6 @@ class _WhereGameScreenState extends State<WhereGameScreen> {
                                                 color: Colors.white,
                                               ),
                                               textAlign: TextAlign.center,
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
                                         ],
@@ -522,7 +500,7 @@ class _WhereGameScreenState extends State<WhereGameScreen> {
                                         category,
                                         itemData['image']!,
                                       );
-                                      // Positive feedback
+
                                       ScaffoldMessenger.of(
                                         context,
                                       ).showSnackBar(
@@ -536,12 +514,22 @@ class _WhereGameScreenState extends State<WhereGameScreen> {
                                           ),
                                           backgroundColor: Colors.green,
                                           duration: const Duration(
-                                            milliseconds: 1000,
+                                            milliseconds: 900,
                                           ),
                                         ),
                                       );
+
+                                      setState(() {
+                                        _currentIndex++;
+                                      });
+
+                                      if (_currentIndex >= allItems.length) {
+                                        Future.delayed(
+                                          const Duration(milliseconds: 250),
+                                          () => _showCompletionDialog(),
+                                        );
+                                      }
                                     } else {
-                                      // Negative feedback
                                       ScaffoldMessenger.of(
                                         context,
                                       ).showSnackBar(
@@ -553,12 +541,9 @@ class _WhereGameScreenState extends State<WhereGameScreen> {
                                               color: Colors.white,
                                             ),
                                           ),
-                                          backgroundColor:
-                                              Colors
-                                                  .red
-                                                  .shade400, // Error color
+                                          backgroundColor: Colors.red.shade400,
                                           duration: const Duration(
-                                            milliseconds: 1500,
+                                            milliseconds: 1400,
                                           ),
                                         ),
                                       );
@@ -584,12 +569,6 @@ class _WhereGameScreenState extends State<WhereGameScreen> {
   Future<void> _initializeAdaptiveMode() async {
     if (_useAdaptiveMode) {
       try {
-        // Mocking initialization since external classes are not provided
-        // await _gamificationSystem.initialize();
-        // _currentDifficulty = await AdaptiveAssessmentSystem.getCurrentLevel(
-        // 	 widget.nickname,
-        // 	 AssessmentType.dailyTasks.value,
-        // );
         setState(() {});
       } catch (e) {
         print('Error initializing adaptive mode: $e');
@@ -605,35 +584,10 @@ class _WhereGameScreenState extends State<WhereGameScreen> {
         0,
         (sum, list) => sum + list.length,
       );
-      final totalItems = _totalItems; // Use the fixed total
+      final totalItems = allItems.length;
 
-      // Mocking saveAssessmentResult since external classes are not provided
-      // await AdaptiveAssessmentSystem.saveAssessmentResult(
-      // 	 nickname: widget.nickname,
-      // 	 assessmentType: AssessmentType.dailyTasks.value,
-      // 	 moduleName: "Categorization Game",
-      // 	 totalQuestions: totalItems,
-      // 	 correctAnswers: correctItems,
-      // 	 timeSpent: const Duration(minutes: 4),
-      // 	 attemptedQuestions: allItems.map((item) => item['image']!).toList(),
-      // 	 correctQuestions: acceptedItems.values.expand((list) => list).toList(),
-      // );
-
-      // Award XP based on performance
       final isPerfect = correctItems == totalItems;
       final isGood = correctItems >= totalItems * 0.7;
-
-      // Mocking awardXP since external classes are not provided
-      // _lastReward = await _gamificationSystem.awardXP(
-      // 	 nickname: widget.nickname,
-      // 	 activity: isPerfect ? 'perfect_categorization' : (isGood ? 'good_categorization' : 'categorization_practice'),
-      // 	 metadata: {
-      // 	 	 'module': 'whereDoesItBelong',
-      // 	 	 'score': correctItems,
-      // 	 	 'total': totalItems,
-      // 	 	 'perfect': isPerfect,
-      // 	 },
-      // );
 
       print('Adaptive assessment saved for WhereDoesItBelong game');
     } catch (e) {
@@ -648,17 +602,7 @@ class _WhereGameScreenState extends State<WhereGameScreen> {
         0,
         (sum, list) => sum + list.length,
       );
-      final totalItems = _totalItems;
-
-      // Mocking saveLessonCompletion since external classes are not provided
-      // await retentionSystem.saveLessonCompletion(
-      // 	 nickname: widget.nickname,
-      // 	 moduleName: "Categorization",
-      // 	 lessonType: "WhereDoesItBelong Game",
-      // 	 score: correctItems,
-      // 	 totalQuestions: totalItems,
-      // 	 passed: correctItems >= totalItems * 0.7,
-      // );
+      final totalItems = allItems.length;
     } catch (e) {
       print('Error saving to memory retention: $e');
     }
