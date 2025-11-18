@@ -12,7 +12,7 @@ class LearnShapes extends StatefulWidget {
 }
 
 class _LearnShapesState extends State<LearnShapes>
-  with TickerProviderStateMixin {
+    with TickerProviderStateMixin {
   final FlutterTts flutterTts = FlutterTts();
   String? _animationDirection;
 
@@ -46,7 +46,7 @@ class _LearnShapesState extends State<LearnShapes>
     {'type': 'shape', 'name': 'Star', 'image': 'assets/sta.png'},
     {
       'type': 'example',
-      'description': 'A balloons has the shape of a Star.',
+      'description': 'A balloon has the shape of a Star.',
       'image': 'assets/balloons.png',
     },
   ];
@@ -123,7 +123,7 @@ class _LearnShapesState extends State<LearnShapes>
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Image.asset(
-                      'assets/star.png', 
+                      'assets/star.png',
                       height: ResponsiveUtils.getResponsiveIconSize(context, mobile: 120),
                       width: ResponsiveUtils.getResponsiveIconSize(context, mobile: 120),
                     ),
@@ -146,7 +146,7 @@ class _LearnShapesState extends State<LearnShapes>
                       children: [
                         _buildDialogButton(
                           label: "Restart Module",
-                          color: const Color(0xFF4C4F6B),
+                          color: Color(0xFF4C4F6B),
                           onPressed: () {
                             _resetCurrentIndex();
                             Navigator.pop(context);
@@ -156,7 +156,7 @@ class _LearnShapesState extends State<LearnShapes>
                         ResponsiveSpacing(mobileSpacing: 20),
                         _buildDialogButton(
                           label: "Take Assessment",
-                          color: const Color(0xFF3C7E71),
+                          color: Color(0xFF3C7E71),
                           onPressed: () {
                             Navigator.pop(context);
                             Navigator.pushReplacement(
@@ -226,79 +226,16 @@ class _LearnShapesState extends State<LearnShapes>
       backgroundColor: const Color(0xFFEFE9D5),
       body: SafeArea(
         child: ResponsiveWidget(
-          mobile: _buildMobileLayout(context, item),
-          tablet: _buildTabletLayout(context, item),
-          desktop: _buildDesktopLayout(context, item),
-          largeDesktop: _buildLargeDesktopLayout(context, item),
+          mobile: _buildLayout(context, item),
+          tablet: _buildLayout(context, item),
+          desktop: _buildLayout(context, item),
+          largeDesktop: _buildLayout(context, item),
         ),
       ),
     );
   }
 
-  Widget _buildMobileLayout(BuildContext context, Map<String, dynamic> item) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: ResponsiveUtils.getResponsivePadding(context),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            ResponsiveSpacing(mobileSpacing: 20),
-            _buildBackButton(context),
-            ResponsiveSpacing(mobileSpacing: 20),
-            _buildTitle(context),
-            ResponsiveSpacing(mobileSpacing: 20),
-            _buildContentCard(context, item),
-            ResponsiveSpacing(mobileSpacing: 30),
-            _buildNavigationButtons(context),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTabletLayout(BuildContext context, Map<String, dynamic> item) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: ResponsiveUtils.getResponsivePadding(context),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            ResponsiveSpacing(mobileSpacing: 20),
-            _buildBackButton(context),
-            ResponsiveSpacing(mobileSpacing: 20),
-            _buildTitle(context),
-            ResponsiveSpacing(mobileSpacing: 20),
-            _buildContentCard(context, item),
-            ResponsiveSpacing(mobileSpacing: 30),
-            _buildNavigationButtons(context),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDesktopLayout(BuildContext context, Map<String, dynamic> item) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: ResponsiveUtils.getResponsivePadding(context),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            ResponsiveSpacing(mobileSpacing: 20),
-            _buildBackButton(context),
-            ResponsiveSpacing(mobileSpacing: 20),
-            _buildTitle(context),
-            ResponsiveSpacing(mobileSpacing: 20),
-            _buildContentCard(context, item),
-            ResponsiveSpacing(mobileSpacing: 30),
-            _buildNavigationButtons(context),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLargeDesktopLayout(BuildContext context, Map<String, dynamic> item) {
+  Widget _buildLayout(BuildContext context, Map<String, dynamic> item) {
     return SingleChildScrollView(
       child: Padding(
         padding: ResponsiveUtils.getResponsivePadding(context),
@@ -373,10 +310,7 @@ class _LearnShapesState extends State<LearnShapes>
   Widget _buildContentCard(BuildContext context, Map<String, dynamic> item) {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 500),
-      transitionBuilder: (
-        Widget child,
-        Animation<double> animation,
-      ) {
+      transitionBuilder: (Widget child, Animation<double> animation) {
         final offsetAnimation = Tween<Offset>(
           begin: _animationDirection == 'next'
               ? const Offset(1.0, 0.0)
@@ -392,12 +326,12 @@ class _LearnShapesState extends State<LearnShapes>
       },
       child: Container(
         key: ValueKey<int>(_currentIndex),
-        width: ResponsiveUtils.isSmallScreen(context) 
-          ? MediaQuery.of(context).size.width * 0.9
-          : ResponsiveUtils.getResponsiveIconSize(context, mobile: 600),
-        height: ResponsiveUtils.isSmallScreen(context) 
-          ? MediaQuery.of(context).size.width * 0.9
-          : ResponsiveUtils.getResponsiveIconSize(context, mobile: 600),
+        width: ResponsiveUtils.isSmallScreen(context)
+            ? MediaQuery.of(context).size.width * 0.9
+            : ResponsiveUtils.getResponsiveIconSize(context, mobile: 600),
+        height: ResponsiveUtils.isSmallScreen(context)
+            ? MediaQuery.of(context).size.height * 0.45
+            : ResponsiveUtils.getResponsiveIconSize(context, mobile: 600),
         padding: ResponsiveUtils.getResponsivePadding(context),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -424,53 +358,58 @@ class _LearnShapesState extends State<LearnShapes>
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF4A4E69),
                   ),
-                  mobileFontSize: 24,
-                  tabletFontSize: 28,
-                  desktopFontSize: 32,
-                  largeDesktopFontSize: 36,
+                  mobileFontSize: 40,
+                  tabletFontSize: 45,
+                  desktopFontSize: 50,
+                  largeDesktopFontSize: 55,
                 ),
                 ResponsiveSpacing(mobileSpacing: 10, isVertical: false),
                 IconButton(
                   icon: ResponsiveIcon(
                     Icons.volume_up,
                     color: Color(0xFF648BA2),
-                    mobileSize: 32,
-                    tabletSize: 36,
-                    desktopSize: 40,
-                    largeDesktopSize: 44,
+                    mobileSize: 40,
+                    tabletSize: 45,
+                    desktopSize: 45,
+                    largeDesktopSize: 50,
                   ),
                   onPressed: _speakContent,
                 ),
               ],
             ),
+
             ResponsiveSpacing(mobileSpacing: 20),
+
             AnimatedScale(
               duration: const Duration(milliseconds: 500),
               curve: Curves.easeOutBack,
               scale: 1.0,
               child: Image.asset(
                 item['image']!,
-                height: ResponsiveUtils.isSmallScreen(context) 
-                  ? ResponsiveUtils.getResponsiveIconSize(context, mobile: 200)
-                  : ResponsiveUtils.getResponsiveIconSize(context, mobile: 350),
-                width: ResponsiveUtils.isSmallScreen(context) 
-                  ? ResponsiveUtils.getResponsiveIconSize(context, mobile: 200)
-                  : ResponsiveUtils.getResponsiveIconSize(context, mobile: 400),
+                height: ResponsiveUtils.isSmallScreen(context)
+                    ? 200
+                    : 350,
+                width: ResponsiveUtils.isSmallScreen(context)
+                    ? 200
+                    : 350,
                 fit: BoxFit.contain,
               ),
             ),
+
             if (item['type'] == 'example') ...[
-              ResponsiveSpacing(mobileSpacing: 20),
+              ResponsiveSpacing(mobileSpacing: 25),
+
               ResponsiveText(
                 item['description']!,
                 style: TextStyle(
                   color: Color(0xFF4A4E69),
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
+                  height: 1.3,
                 ),
-                mobileFontSize: 16,
-                tabletFontSize: 18,
-                desktopFontSize: 20,
-                largeDesktopFontSize: 22,
+                mobileFontSize: 30,
+                tabletFontSize: 35,
+                desktopFontSize: 40,
+                largeDesktopFontSize: 40,
                 textAlign: TextAlign.center,
               ),
             ],
@@ -480,6 +419,9 @@ class _LearnShapesState extends State<LearnShapes>
     );
   }
 
+  // ------------------------------------------------------------
+  // 🔥 UPDATED — BIGGER PREVIOUS / NEXT BUTTONS
+  // ------------------------------------------------------------
   Widget _buildNavigationButtons(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -487,44 +429,53 @@ class _LearnShapesState extends State<LearnShapes>
         ElevatedButton(
           onPressed: _currentIndex == 0 ? null : _previousShape,
           style: ElevatedButton.styleFrom(
-            backgroundColor: _currentIndex == 0
-                ? Colors.grey
-                : const Color(0xFF648BA2),
-            padding: ResponsiveUtils.getResponsivePadding(context),
+            backgroundColor:
+                _currentIndex == 0 ? Colors.grey : const Color(0xFF648BA2),
+            padding: EdgeInsets.symmetric(
+              vertical: 20,
+              horizontal: 40,
+            ),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(
-                ResponsiveUtils.getResponsiveBorderRadius(context, mobile: 12),
-              ),
+              borderRadius: BorderRadius.circular(14),
             ),
           ),
           child: ResponsiveText(
             'Previous',
-            style: TextStyle(color: Colors.white),
-            mobileFontSize: 16,
-            tabletFontSize: 18,
-            desktopFontSize: 20,
-            largeDesktopFontSize: 22,
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+            mobileFontSize: 26,
+            tabletFontSize: 30,
+            desktopFontSize: 34,
+            largeDesktopFontSize: 38,
           ),
         ),
-        ResponsiveSpacing(mobileSpacing: 15, isVertical: false),
+
+        ResponsiveSpacing(mobileSpacing: 20, isVertical: false),
+
         ElevatedButton(
           onPressed: _nextShape,
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF648BA2),
-            padding: ResponsiveUtils.getResponsivePadding(context),
+            padding: EdgeInsets.symmetric(
+              vertical: 20,
+              horizontal: 40,
+            ),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(
-                ResponsiveUtils.getResponsiveBorderRadius(context, mobile: 12),
-              ),
+              borderRadius: BorderRadius.circular(14),
             ),
           ),
           child: ResponsiveText(
             'Next',
-            style: TextStyle(color: Colors.white),
-            mobileFontSize: 16,
-            tabletFontSize: 18,
-            desktopFontSize: 20,
-            largeDesktopFontSize: 22,
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+            mobileFontSize: 26,
+            tabletFontSize: 30,
+            desktopFontSize: 34,
+            largeDesktopFontSize: 38,
           ),
         ),
       ],

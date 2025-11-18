@@ -4,8 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'ColorAssessment.dart';
 import 'responsive_utils.dart';
 
-// Removed duplicate main() function - this should only be in main.dart
-
 class LearnColors extends StatefulWidget {
   final String nickname;
   const LearnColors({super.key, required this.nickname});
@@ -187,6 +185,45 @@ class _LearnColorsState extends State<LearnColors> with SingleTickerProviderStat
     );
   }
 
+  Widget _buildBackButton(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmall = screenWidth < 400;
+    final isMedium = screenWidth >= 400 && screenWidth < 800;
+
+    final double backButtonHeight = isSmall ? 50.0 : 60.0;
+    final double backButtonWidth = isSmall ? 140.0 : 180.0;
+    final double backButtonFont = isSmall ? 20.0 : (isMedium ? 22.0 : 25.0);
+
+    return Align(
+      alignment: Alignment.topLeft,
+      child: SizedBox(
+        height: backButtonHeight,
+        width: backButtonWidth,
+        child: ElevatedButton(
+          onPressed: () => Navigator.pop(context),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF648BA2),
+            padding: EdgeInsets.symmetric(
+              vertical: isSmall ? 12 : 15, 
+              horizontal: isSmall ? 16 : 20
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: Text(
+            'Go Back',
+            style: TextStyle(
+              fontSize: backButtonFont,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final item = items[currentIndex];
@@ -224,94 +261,9 @@ class _LearnColorsState extends State<LearnColors> with SingleTickerProviderStat
     );
   }
 
-  Widget _buildTabletLayout(BuildContext context, Map<String, dynamic> item) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: ResponsiveUtils.getResponsivePadding(context),
-        child: Column(
-          children: [
-            ResponsiveSpacing(mobileSpacing: 20),
-            _buildBackButton(context),
-            ResponsiveSpacing(mobileSpacing: 20),
-            _buildTitle(context),
-            ResponsiveSpacing(mobileSpacing: 20),
-            _buildContentCard(context, item),
-            ResponsiveSpacing(mobileSpacing: 30),
-            _buildNavigationButtons(context),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDesktopLayout(BuildContext context, Map<String, dynamic> item) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: ResponsiveUtils.getResponsivePadding(context),
-        child: Column(
-          children: [
-            ResponsiveSpacing(mobileSpacing: 20),
-            _buildBackButton(context),
-            ResponsiveSpacing(mobileSpacing: 20),
-            _buildTitle(context),
-            ResponsiveSpacing(mobileSpacing: 20),
-            _buildContentCard(context, item),
-            ResponsiveSpacing(mobileSpacing: 30),
-            _buildNavigationButtons(context),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLargeDesktopLayout(BuildContext context, Map<String, dynamic> item) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: ResponsiveUtils.getResponsivePadding(context),
-        child: Column(
-          children: [
-            ResponsiveSpacing(mobileSpacing: 20),
-            _buildBackButton(context),
-            ResponsiveSpacing(mobileSpacing: 20),
-            _buildTitle(context),
-            ResponsiveSpacing(mobileSpacing: 20),
-            _buildContentCard(context, item),
-            ResponsiveSpacing(mobileSpacing: 30),
-            _buildNavigationButtons(context),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBackButton(BuildContext context) {
-    return Align(
-      alignment: Alignment.topLeft,
-      child: ElevatedButton(
-        onPressed: () => Navigator.pop(context),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF648BA2),
-          padding: ResponsiveUtils.getResponsivePadding(context),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(
-              ResponsiveUtils.getResponsiveBorderRadius(context, mobile: 12),
-            ),
-          ),
-        ),
-        child: ResponsiveText(
-          'Go Back',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-          mobileFontSize: 18,
-          tabletFontSize: 20,
-          desktopFontSize: 22,
-          largeDesktopFontSize: 24,
-        ),
-      ),
-    );
-  }
+  Widget _buildTabletLayout(BuildContext context, Map<String, dynamic> item) => _buildMobileLayout(context, item);
+  Widget _buildDesktopLayout(BuildContext context, Map<String, dynamic> item) => _buildMobileLayout(context, item);
+  Widget _buildLargeDesktopLayout(BuildContext context, Map<String, dynamic> item) => _buildMobileLayout(context, item);
 
   Widget _buildTitle(BuildContext context) {
     return Center(
@@ -319,12 +271,12 @@ class _LearnColorsState extends State<LearnColors> with SingleTickerProviderStat
         'Learn the Colors',
         style: TextStyle(
           fontWeight: FontWeight.bold,
-          color: Color(0xFF4A4E69),
+          color: const Color(0xFF4A4E69),
         ),
-        mobileFontSize: 28,
-        tabletFontSize: 32,
-        desktopFontSize: 36,
-        largeDesktopFontSize: 40,
+        mobileFontSize: 36,
+        tabletFontSize: 40,
+        desktopFontSize: 44,
+        largeDesktopFontSize: 48,
       ),
     );
   }
@@ -352,10 +304,10 @@ class _LearnColorsState extends State<LearnColors> with SingleTickerProviderStat
       child: Container(
         key: ValueKey<int>(currentIndex),
         width: ResponsiveUtils.isSmallScreen(context) 
-          ? MediaQuery.of(context).size.width * 0.9
+          ? MediaQuery.of(context).size.width * 0.95
           : ResponsiveUtils.getResponsiveIconSize(context, mobile: 600),
         height: ResponsiveUtils.isSmallScreen(context) 
-          ? MediaQuery.of(context).size.width * 0.9
+          ? MediaQuery.of(context).size.width * 0.95
           : ResponsiveUtils.getResponsiveIconSize(context, mobile: 600),
         padding: ResponsiveUtils.getResponsivePadding(context),
         decoration: BoxDecoration(
@@ -381,18 +333,18 @@ class _LearnColorsState extends State<LearnColors> with SingleTickerProviderStat
                   item['type'] == 'color' ? item['name'] : 'Example',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF4A4E69),
+                    color: const Color(0xFF4A4E69),
                   ),
-                  mobileFontSize: 24,
-                  tabletFontSize: 28,
-                  desktopFontSize: 32,
-                  largeDesktopFontSize: 36,
+                  mobileFontSize: 36,
+                  tabletFontSize: 40,
+                  desktopFontSize: 44,
+                  largeDesktopFontSize: 48,
                 ),
                 ResponsiveSpacing(mobileSpacing: 10, isVertical: false),
                 IconButton(
                   icon: ResponsiveIcon(
                     Icons.volume_up,
-                    color: Color(0xFF648BA2),
+                    color: const Color(0xFF648BA2),
                     mobileSize: 32,
                     tabletSize: 36,
                     desktopSize: 40,
@@ -410,19 +362,19 @@ class _LearnColorsState extends State<LearnColors> with SingleTickerProviderStat
               child: Image.asset(
                 item['image'],
                 height: ResponsiveUtils.isSmallScreen(context) 
-                  ? ResponsiveUtils.getResponsiveIconSize(context, mobile: 200)
-                  : ResponsiveUtils.getResponsiveIconSize(context, mobile: 350),
+                  ? ResponsiveUtils.getResponsiveIconSize(context, mobile: 350)
+                  : ResponsiveUtils.getResponsiveIconSize(context, mobile: 500),
                 width: ResponsiveUtils.isSmallScreen(context) 
-                  ? ResponsiveUtils.getResponsiveIconSize(context, mobile: 200)
-                  : ResponsiveUtils.getResponsiveIconSize(context, mobile: 400),
+                  ? ResponsiveUtils.getResponsiveIconSize(context, mobile: 350)
+                  : ResponsiveUtils.getResponsiveIconSize(context, mobile: 500),
                 fit: BoxFit.cover,
                 errorBuilder: (_, __, ___) => ResponsiveIcon(
                   Icons.broken_image,
                   color: Colors.red,
-                  mobileSize: 60,
-                  tabletSize: 70,
-                  desktopSize: 80,
-                  largeDesktopSize: 90,
+                  mobileSize: 80,
+                  tabletSize: 90,
+                  desktopSize: 100,
+                  largeDesktopSize: 120,
                 ),
               ),
             ),
@@ -431,13 +383,13 @@ class _LearnColorsState extends State<LearnColors> with SingleTickerProviderStat
               ResponsiveText(
                 item['description'],
                 style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF4A4E69),
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF4A4E69),
                 ),
-                mobileFontSize: 16,
-                tabletFontSize: 18,
-                desktopFontSize: 20,
-                largeDesktopFontSize: 22,
+                mobileFontSize: 28,
+                tabletFontSize: 32,
+                desktopFontSize: 36,
+                largeDesktopFontSize: 40,
                 textAlign: TextAlign.center,
               ),
             ],
@@ -464,7 +416,7 @@ class _LearnColorsState extends State<LearnColors> with SingleTickerProviderStat
           ),
           child: ResponsiveText(
             'Previous',
-            style: TextStyle(color: Colors.white),
+            style: const TextStyle(color: Colors.white),
             mobileFontSize: 16,
             tabletFontSize: 18,
             desktopFontSize: 20,
@@ -485,7 +437,7 @@ class _LearnColorsState extends State<LearnColors> with SingleTickerProviderStat
           ),
           child: ResponsiveText(
             'Next',
-            style: TextStyle(color: Colors.white),
+            style: const TextStyle(color: Colors.white),
             mobileFontSize: 16,
             tabletFontSize: 18,
             desktopFontSize: 20,

@@ -176,7 +176,7 @@ class _LearnMyFamilyState extends State<LearnMyFamily>
     required VoidCallback onPressed,
   }) {
     return SizedBox(
-      height: isSmallScreen ? 45 : 55,
+      height: isSmallScreen ? 50 : 60,
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
@@ -184,13 +184,13 @@ class _LearnMyFamilyState extends State<LearnMyFamily>
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 8 : 12),
+          padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 12 : 16),
         ),
         child: Text(
           label,
           style: TextStyle(
             color: Colors.white,
-            fontSize: isSmallScreen ? 14 : 18,
+            fontSize: isSmallScreen ? 16 : 20,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -320,8 +320,8 @@ class _LearnMyFamilyState extends State<LearnMyFamily>
                     width: isSmallScreen ? screenWidth * 0.9 : 600,
                     constraints: BoxConstraints(
                       maxWidth: 600,
-                      minHeight: isSmallScreen ? 400 : 600,
-                      maxHeight: isSmallScreen ? screenHeight * 0.7 : 600,
+                      minHeight: isSmallScreen ? 450 : 650,
+                      maxHeight: isSmallScreen ? screenHeight * 0.75 : 650,
                     ),
                     padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
                     decoration: BoxDecoration(
@@ -335,61 +335,62 @@ class _LearnMyFamilyState extends State<LearnMyFamily>
                         ),
                       ],
                     ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    child: Stack(
                       children: [
-                        Row(
+                        Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const SizedBox(),
-                            const SizedBox(width: 10),
-                            IconButton(
-                              icon: Icon(
-                                Icons.volume_up,
-                                size: isSmallScreen ? 40 : 55,
-                                color: Color(0xFF648BA2),
+                            SizedBox(height: isSmallScreen ? 50 : 60),
+                            Flexible(
+                              child: Image.asset(
+                                item['image']!,
+                                height: isSmallScreen ? 250 : 400,
+                                width: isSmallScreen ? screenWidth * 0.8 : 450,
+                                fit: BoxFit.contain,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    height: isSmallScreen ? 250 : 400,
+                                    width: isSmallScreen ? screenWidth * 0.8 : 450,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[200],
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Icon(
+                                      Icons.image_not_supported,
+                                      size: isSmallScreen ? 50 : 80,
+                                      color: Colors.grey[400],
+                                    ),
+                                  );
+                                },
                               ),
-                              onPressed: _speakContent,
+                            ),
+                            SizedBox(height: isSmallScreen ? 15 : 20),
+                            Flexible(
+                              child: Text(
+                                item['description']!,
+                                style: TextStyle(
+                                  fontSize: isSmallScreen ? 24 : 32,
+                                  color: Color(0xFF4A4E69),
+                                  fontWeight: FontWeight.w500,
+                                  height: 1.3,
+                                ),
+                                textAlign: TextAlign.center,
+                                maxLines: isVerySmallScreen ? 3 : null,
+                                overflow: isVerySmallScreen ? TextOverflow.ellipsis : null,
+                              ),
                             ),
                           ],
                         ),
-                        SizedBox(height: isSmallScreen ? 15 : 20),
-                        Flexible(
-                          child: Image.asset(
-                            item['image']!,
-                            height: isSmallScreen ? 200 : 350,
-                            width: isSmallScreen ? screenWidth * 0.7 : 400,
-                            fit: BoxFit.contain,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                height: isSmallScreen ? 200 : 350,
-                                width: isSmallScreen ? screenWidth * 0.7 : 400,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[200],
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Icon(
-                                  Icons.image_not_supported,
-                                  size: isSmallScreen ? 50 : 80,
-                                  color: Colors.grey[400],
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                        SizedBox(height: isSmallScreen ? 15 : 20),
-                        Flexible(
-                          child: Text(
-                            item['description']!,
-                            style: TextStyle(
-                              fontSize: isSmallScreen ? 18 : 25,
-                              color: Color(0xFF4A4E69),
-                              fontWeight: FontWeight.w500,
-                              height: 1.3,
+                        Positioned(
+                          top: 0,
+                          right: 0,
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.volume_up,
+                              size: isSmallScreen ? 40 : 55,
+                              color: Color(0xFF648BA2),
                             ),
-                            textAlign: TextAlign.center,
-                            maxLines: isVerySmallScreen ? 3 : null,
-                            overflow: isVerySmallScreen ? TextOverflow.ellipsis : null,
+                            onPressed: _speakContent,
                           ),
                         ),
                       ],
@@ -398,8 +399,8 @@ class _LearnMyFamilyState extends State<LearnMyFamily>
                 ),
                 SizedBox(height: isSmallScreen ? 20 : 30),
                 Wrap(
-                  spacing: isSmallScreen ? 8 : 15,
-                  runSpacing: 8,
+                  spacing: isSmallScreen ? 10 : 20,
+                  runSpacing: 10,
                   children: [
                     ElevatedButton(
                       onPressed: _currentIndex == 0 ? null : _previousItem,
@@ -409,18 +410,19 @@ class _LearnMyFamilyState extends State<LearnMyFamily>
                                 ? Colors.grey
                                 : const Color(0xFF648BA2),
                         padding: EdgeInsets.symmetric(
-                          horizontal: isSmallScreen ? 15 : 30,
-                          vertical: isSmallScreen ? 10 : 16,
+                          horizontal: isSmallScreen ? 30 : 50,
+                          vertical: isSmallScreen ? 16 : 22,
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(14),
                         ),
                       ),
                       child: Text(
                         'Previous',
                         style: TextStyle(
-                          fontSize: isSmallScreen ? 16 : 22, 
+                          fontSize: isSmallScreen ? 20 : 28,
                           color: Colors.white,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
@@ -429,18 +431,19 @@ class _LearnMyFamilyState extends State<LearnMyFamily>
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF648BA2),
                         padding: EdgeInsets.symmetric(
-                          horizontal: isSmallScreen ? 15 : 30,
-                          vertical: isSmallScreen ? 10 : 16,
+                          horizontal: isSmallScreen ? 30 : 50,
+                          vertical: isSmallScreen ? 16 : 22,
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(14),
                         ),
                       ),
                       child: Text(
                         'Next',
                         style: TextStyle(
-                          fontSize: isSmallScreen ? 16 : 22, 
+                          fontSize: isSmallScreen ? 20 : 28,
                           color: Colors.white,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
